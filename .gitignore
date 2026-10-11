@@ -1,0 +1,32 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node & Frontend
+node_modules/
+.npm/
+dist-ssr/
+*.local
+
+# Worktrees & IDE
+.worktrees/
+.claude/worktrees/
+*.swp
+*.swo
+.DS_Store
+
+# Environment & Database
+.env
+*.env
+*.sqlite3
+*.sqlite
+*.db
+

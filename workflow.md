@@ -1,307 +1,362 @@
 # Multi-Agent Production Todo Application Workflow
 
-This document outlines the collaborative multi-agent software engineering workflow for building a full-stack, production-grade **Todo Application** across **4 autonomous Antigravity (`agy`) agents** running in parallel.
+This document defines the autonomous multi-agent engineering workflow for developing a production-grade **Full-Stack Todo Application** across parallel **Antigravity (`agy`) agents**.
 
 ---
 
-## 1. System Architecture & Tech Stack
+## 1. System Architecture Overview
 
 ```
-                              ┌────────────────────────────────────────┐
-                              │            Client / Browser            │
-                              │       (Desktop & Mobile Friendly)      │
-                              └───────────────────┬────────────────────┘
-                                                  │
-                                                  ▼
-                              ┌────────────────────────────────────────┐
-                              │          Nginx Reverse Proxy           │
-                              │          Port 80 / 443 (Prod)          │
-                              └─────────┬──────────────────┬───────────┘
-                                        │                  │
-                /api/* Requests         │                  │ /* Static Files
-                                        ▼                  ▼
-                    ┌────────────────────────┐   ┌────────────────────────┐
-                    │     FastAPI Backend    │   │  Modern Frontend App   │
-                    │      Port 8000         │   │       Port 3000        │
-                    │  (REST API + OpenAPI)  │   │   (Vite / React / UI)  │
-                    └───────────┬────────────┘   └────────────────────────┘
-                                │
-                                ▼
-                    ┌────────────────────────┐
-                    │    SQLite / SQLModel   │
-                    │  (Persistent Storage)  │
-                    └────────────────────────┘
+                                 ┌────────────────────────────────────────┐
+                                 │            Client / Browser            │
+                                 │       (Desktop & Mobile Friendly)      │
+                                 └───────────────────┬────────────────────┘
+                                                     │
+                                                     ▼
+                                 ┌────────────────────────────────────────┐
+                                 │          Nginx Reverse Proxy           │
+                                 │          Port 80 / 443 (Prod)          │
+                                 └─────────┬──────────────────┬───────────┘
+                                           │                  │
+                   /api/* Requests         │                  │ /* Static Assets
+                                           ▼                  ▼
+                       ┌────────────────────────┐   ┌────────────────────────┐
+                       │     FastAPI Backend    │   │  Modern Frontend App   │
+                       │      Port 8000         │   │       Port 3000        │
+                       │  (REST API + OpenAPI)  │   │   (Vite / React / UI)  │
+                       └───────────┬────────────┘   └────────────────────────┘
+                                   │
+                                   ▼
+                       ┌────────────────────────┐
+                       │    SQLite / SQLModel   │
+                       │  (Persistent Storage)  │
+                       └────────────────────────┘
 ```
-
-- **Backend**: Python 3.12+ / FastAPI / SQLModel / Pydantic v2 / Uvicorn / Pytest.
-- **Frontend**: Modern SPA (Vite + TypeScript + React or Modern Vanilla UI) with Glassmorphism, Dark/Light mode, WCAG accessibility, and responsive typography.
-- **DevOps**: Docker multi-stage builds, Docker Compose, Nginx reverse proxy, GitHub Actions CI/CD workflows, automated health check probes.
-- **Advanced Features**: Subtasks, Priority Matrix, Tagging & Categories, Analytics/Productivity Dashboard, JSON/CSV Export & Import, Full-text Search.
 
 ---
 
 ## 2. Agent Allocation & Domain Isolation
 
-To enable parallel execution across all 4 terminal instances without merge conflicts or file locking, the repository is split into strictly isolated domains:
+Agents 1 to 3 are dedicated to **Feature Engineering & Backend Capabilities**, while the remaining agents handle **Frontend UI** and **DevOps / Production Infrastructure**:
 
-| Agent | Terminal | Domain / Role | Isolated Directory Scope | Git Branch |
+| Agent | Terminal | Domain / Responsibility | Isolated Path Boundary | Git Branch / Worktree |
 | :--- | :--- | :--- | :--- | :--- |
-| **Agent 1** *(This Agent)* | Terminal PID `19204` | **Core Architecture & Backend API** | `backend/`, `contracts/`, `pyproject.toml` | `feature/backend-api` |
-| **Agent 2** | Terminal 2 | **Frontend UI & Interactive Client** | `frontend/` | `feature/frontend-ui` |
-| **Agent 3** | Terminal 3 | **Advanced Features & Analytics** | `features/`, `backend/app/modules/`, `frontend/src/features/` | `feature/advanced-features` |
-| **Agent 4** | Terminal 4 | **DevOps, CI/CD & Production Infra** | `devops/`, `.github/`, `nginx/`, `docker-compose.yml`, `Dockerfile.*` | `feature/devops-pipeline` |
+| **Agent 1** *(This Agent)* | Terminal PID `19204` | **Feature Track 1: Core Architecture & Backend CRUD** | `backend/app/core/`, `backend/app/models/`, `backend/app/api/v1/todos.py`, `contracts/` | `feature/core-backend` |
+| **Agent 2** | Terminal 2 | **Feature Track 2: Subtasks, Checklists & Due Dates** | `backend/app/modules/subtasks/`, `backend/app/api/v1/subtasks.py` | `feature/subtasks-reminders` |
+| **Agent 3** | Terminal 3 | **Feature Track 3: Analytics, Search & Data Import/Export** | `backend/app/modules/analytics/`, `backend/app/modules/export_import/` | `feature/analytics-export` |
+| **Agent 4** | Terminal 4 | **Frontend Client: Modern Responsive UI & State** | `frontend/` | `feature/frontend-ui` |
+| **Agent 5** | Terminal 5 | **DevOps & Production Infra: Docker, CI/CD, Nginx** | `devops/`, `.github/`, `nginx/`, `docker-compose.yml` | `feature/devops-pipeline` |
+
+*(Note: If running 4 agents instead of 5, Agent 4 can handle both Frontend and DevOps, or follow the 5-agent breakdown as terminal instances are available.)*
 
 ---
 
-## 3. Directory Boundary Rules (Anti-Collision Matrix)
+## 3. Directory Boundary Rules (Anti-Collision Protocol)
 
-1. **Rule of Single Responsibility**: Each agent writes **only** to its designated directories.
-2. **Contract-First Development**: Agent 1 establishes `contracts/todo-api-spec.json` and base Pydantic models. Agents 2, 3, and 4 develop against this contract.
-3. **No Lock Contention**: Shared files like root `README.md` or lockfiles are updated only during the integration phase.
+To eliminate git merge conflicts and file locking between parallel agents:
+
+1. **Path Boundary Strictness**: No agent may edit code outside its designated path boundary without coordinating through interface contracts.
+2. **Contract-First Development**: Agent 1 produces `contracts/todo-api-spec.json` and base Pydantic models. All downstream agents build strictly against these contracts.
+3. **Dedicated Git Worktrees**: Each agent executes in its own Git worktree directory (`.worktrees/<agent-name>`), keeping the working tree clean and isolated.
 
 ```
 todo/
-├── backend/                  <-- [AGENT 1 ONLY]
+├── contracts/                        <-- [AGENT 1: Base OpenAPI specification]
+│   └── todo-api-spec.json
+├── backend/
 │   ├── app/
-│   │   ├── core/             (Config, database session, middleware)
-│   │   ├── models/           (SQLModel / SQLAlchemy entities)
-│   │   ├── schemas/          (Pydantic request/response schemas)
-│   │   ├── api/v1/           (CRUD endpoints: /todos, /categories, /health)
-│   │   └── main.py           (FastAPI app initialization)
-│   ├── tests/                (pytest suite)
-│   └── requirements.txt
-├── contracts/                <-- [AGENT 1 establishes, shared read-only]
-│   └── todo-api-spec.json    (OpenAPI / Swagger contract)
-├── frontend/                 <-- [AGENT 2 ONLY]
+│   │   ├── core/                     <-- [AGENT 1: DB connection, settings, middleware]
+│   │   ├── models/                   <-- [AGENT 1: Base Todo, Category models]
+│   │   ├── schemas/                  <-- [AGENT 1: Base Pydantic schemas]
+│   │   ├── api/v1/
+│   │   │   ├── todos.py              <-- [AGENT 1: Base CRUD routes]
+│   │   │   ├── subtasks.py           <-- [AGENT 2: Subtasks & checklist routes]
+│   │   │   ├── search.py             <-- [AGENT 3: Advanced search & filters]
+│   │   │   ├── analytics.py          <-- [AGENT 3: Analytics & productivity stats]
+│   │   │   └── export_import.py      <-- [AGENT 3: JSON/CSV export & backup]
+│   │   ├── modules/
+│   │   │   ├── subtasks/             <-- [AGENT 2: Subtask domain service]
+│   │   │   ├── analytics/            <-- [AGENT 3: Analytics calculation service]
+│   │   │   └── export_import/        <-- [AGENT 3: Backup/export processors]
+│   │   └── main.py                   <-- [AGENT 1: Application initialization]
+│   └── tests/                        <-- (Respective agent tests)
+├── frontend/                         <-- [AGENT 4: Entire frontend application]
 │   ├── src/
-│   │   ├── components/       (TodoItem, TodoList, TaskModal, Header, FilterBar)
-│   │   ├── services/         (ApiClient implementing contracts)
-│   │   ├── styles/           (Design system, glassmorphism CSS, animations)
-│   │   ├── types/            (TypeScript interfaces matching contracts)
-│   │   └── App.tsx / main.ts
-│   ├── public/
-│   ├── index.html
-│   └── package.json
-├── features/                 <-- [AGENT 3 ONLY]
-│   ├── subtasks/             (Checklists & subtask tracking engine)
-│   ├── analytics/            (Productivity score, streaks, completion metrics)
-│   ├── export_import/        (JSON / CSV data backup & restore)
-│   └── search_filter/        (Advanced multi-criteria filtering & search)
-├── devops/                   <-- [AGENT 4 ONLY]
+│   │   ├── components/               (TodoCard, SubtaskList, StatsView, FilterBar)
+│   │   ├── services/                 (API client connecting to backend)
+│   │   ├── styles/                   (Glassmorphism CSS, animations, theme tokens)
+│   │   └── App.tsx
+│   ├── package.json
+│   └── index.html
+├── devops/                           <-- [AGENT 5: Container & Deployment Assets]
 │   ├── docker/
 │   │   ├── backend.Dockerfile
 │   │   ├── frontend.Dockerfile
 │   │   └── nginx.conf
-│   └── scripts/              (deploy.sh, backup.sh, healthcheck.sh)
-├── .github/workflows/        <-- [AGENT 4 ONLY]
-│   └── ci-cd.yml             (Lint, test, build, docker-smoke-test)
-├── docker-compose.yml        <-- [AGENT 4 ONLY]
-├── workflow.md               <-- Orchestration manual
-└── README.md
+│   └── scripts/                      (deploy.sh, healthcheck.sh)
+├── .github/workflows/                <-- [AGENT 5: CI/CD automation]
+│   └── ci.yml
+└── docker-compose.yml                <-- [AGENT 5: Multi-container orchestration]
 ```
 
 ---
 
-## 4. Phase Execution & Synchronization Roadmap
+## 4. Worktree Setup for Parallel Terminals
 
-```
-  ┌──────────────────────────────────────────────────────────────┐
-  │ PHASE 1: Baseline & Contracts (Agent 1)                      │
-  │ - Git initialization & root commit                           │
-  │ - Core FastAPI scaffolding & database schema                 │
-  │ - Publish contracts/todo-api-spec.json                       │
-  └──────────────────────────────┬───────────────────────────────┘
-                                 │
-                                 ▼
-  ┌──────────────────────────────────────────────────────────────┐
-  │ PHASE 2: Parallel Autonomous Sprints (All Agents)             │
-  │                                                              │
-  │ ┌───────────────┐ ┌───────────────┐ ┌──────────────────────┐ │
-  │ │    AGENT 2    │ │    AGENT 3    │ │       AGENT 4        │ │
-  │ │  Frontend UI  │ │ Adv. Features │ │ DevOps / CI/CD Infra │ │
-  │ └───────┬───────┘ └───────┬───────┘ └──────────┬───────────┘ │
-  └─────────┼─────────────────┼────────────────────┼─────────────┘
-            │                 │                    │
-            ▼                 ▼                    ▼
-  ┌──────────────────────────────────────────────────────────────┐
-  │ PHASE 3: Integration & Contract Interlinking                 │
-  │ - Agent 1 coordinates feature branch merges                  │
-  │ - 4-Gate Quality Verification (Lint, Typecheck, Build, Test) │
-  └──────────────────────────────┬───────────────────────────────┘
-                                 │
-                                 ▼
-  ┌──────────────────────────────────────────────────────────────┐
-  │ PHASE 4: Production Release & Smoke Testing                  │
-  │ - `docker compose up -d` live smoke test                     │
-  │ - End-to-end API & UI functional verification                │
-  └──────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 5. Agent-by-Agent Implementation Guides & Prompts
-
-### 🔵 Agent 1: Core Architecture & Backend API (Task 1)
-* **Terminal**: Process ID `19204` (Current terminal)
-* **Scope**: `backend/`, `contracts/`
-* **Objective**: Build a production-grade FastAPI REST service with persistent SQLite/SQLModel storage, comprehensive validation, CRUD endpoints, filtering, pagination, and automated tests.
-
-#### Key Deliverables:
-1. `backend/app/models/todo.py`: Rich models (`Todo`, `PriorityEnum`, `StatusEnum`, `Category`).
-2. `backend/app/schemas/todo.py`: Strict Pydantic v2 schemas for creation, updates, and responses.
-3. `backend/app/api/v1/`: Full REST endpoints:
-   - `GET /api/v1/todos` (with query filtering: status, priority, search, limit, offset)
-   - `POST /api/v1/todos` (creation with validation)
-   - `GET /api/v1/todos/{id}`
-   - `PUT /api/v1/todos/{id}`
-   - `DELETE /api/v1/todos/{id}`
-   - `PATCH /api/v1/todos/{id}/toggle` (quick completion toggle)
-   - `GET /api/v1/health` (live & ready probes)
-4. `contracts/todo-api-spec.json`: Exported OpenAPI schema for Agent 2 and Agent 3.
-5. `backend/tests/`: Pytest suite with 100% route coverage.
-
----
-
-### 🟢 Agent 2: Frontend Client & UI/UX (Task 2)
-* **Terminal**: Terminal 2
-* **Scope**: `frontend/`
-* **Prompt to copy & paste into Agent 2's terminal**:
-
-```markdown
-You are Agent 2 (Frontend Specialist) for our production Todo Application.
-Your responsibility is strictly bounded to the `frontend/` directory.
-
-### Requirements:
-1. Initialize a modern, high-performance web app in `frontend/` (Vite + React + TypeScript or Modern Vanilla TS/HTML5/CSS3).
-2. Adhere to our strict design aesthetic:
-   - Modern glassmorphism / dark & light mode theme toggle.
-   - Elegant typography (Google Fonts Inter/Outfit), smooth micro-animations, and fluid transitions.
-   - Clean spacing, intuitive hover states, and accessible contrast (WCAG 2.2 AA).
-3. Implement core UI components:
-   - `Header`: App title, live date/time, stats badge, theme toggle.
-   - `TaskInput`: Rapid task entry with priority selector (Urgent, High, Medium, Low), due date picker, category tag input, keyboard shortcut (`Enter`).
-   - `FilterBar`: Filters for All / Active / Completed, sort by due date / priority / title, and search query.
-   - `TodoList`: Virtualized or smooth list with empty-state illustrations.
-   - `TodoItem`: Checkbox toggle, priority badge, due date display, inline edit modal, delete button with confirmation.
-4. Implement `frontend/src/services/api.ts`:
-   - Consumes backend endpoints at `http://localhost:8000/api/v1/todos`.
-   - Includes graceful offline fallback (localStorage sync when backend is unavailable).
-5. Build and verify:
-   - Ensure `npm run build` passes with zero type errors.
-   - Run tests or linting with 0 warnings.
-```
-
----
-
-### 🟡 Agent 3: Advanced Features & Analytics Engine (Task 3)
-* **Terminal**: Terminal 3
-* **Scope**: `features/`, `backend/app/modules/`, `frontend/src/features/`
-* **Prompt to copy & paste into Agent 3's terminal**:
-
-```markdown
-You are Agent 3 (Features & Analytics Specialist) for our production Todo Application.
-Your responsibility is to implement high-value advanced features that elevate the app beyond a standard todo list.
-
-### Requirements:
-1. **Subtasks & Checklist Engine**:
-   - Allow any task to have multiple nested sub-tasks or checklist items.
-   - Compute parent task completion percentage dynamically.
-2. **Productivity & Analytics Dashboard**:
-   - Daily/weekly task completion rate.
-   - Productivity streak counter (consecutive active days).
-   - Tasks completed vs created charts or visual breakdown.
-3. **Data Import / Export**:
-   - JSON export: Full backup of all tasks, categories, and settings.
-   - CSV export: Export filtered lists for spreadsheets.
-   - JSON import: Restore tasks with conflict resolution (overwrite or append).
-4. **Tagging, Priority & Reminder Alerts**:
-   - Color-coded category tags (Work, Personal, Urgent, Ideas).
-   - Visual indicators for overdue tasks (amber/red glow or badges).
-5. Provide modular services in `features/` with comprehensive unit tests and clean adapters for the backend and frontend.
-```
-
----
-
-### 🟣 Agent 4: DevOps, Infrastructure & Production Readiness (Task 4)
-* **Terminal**: Terminal 4
-* **Scope**: `devops/`, `.github/`, `docker-compose.yml`, `nginx/`, `.env.example`
-* **Prompt to copy & paste into Agent 4's terminal**:
-
-```markdown
-You are Agent 4 (DevOps & Production Infrastructure Specialist) for our production Todo Application.
-Your responsibility is to containerize, orchestrate, and automate testing and deployment for production.
-
-### Requirements:
-1. **Multi-Stage Dockerfiles**:
-   - `devops/docker/backend.Dockerfile`: Lightweight Python slim image, non-root user, multi-stage build, health check probe.
-   - `devops/docker/frontend.Dockerfile`: Multi-stage build with Node build step and Nginx / static file server.
-2. **Production Orchestration (`docker-compose.yml`)**:
-   - Services: `backend` (FastAPI), `frontend`, and `nginx-proxy` (reverse proxy routing `/api` to backend and `/` to frontend).
-   - Volume mounts for persistent SQLite database (`todo_data:/app/data`).
-   - Resource limits, restart policies, and healthcheck dependencies (`depends_on: condition: service_healthy`).
-3. **Nginx Configuration**:
-   - Reverse proxy with gzip compression, security headers (CSP, X-Frame-Options, HSTS), and client caching for static assets.
-4. **CI/CD Automation (`.github/workflows/ci.yml`)**:
-   - 4-Gate Quality Verification: Lint, Typecheck, Unit Tests (backend + frontend), and Docker build verification.
-5. **Operational Utilities**:
-   - `.env.example` with documented environment configurations.
-   - Healthcheck scripts and startup verification commands.
-```
-
----
-
-## 6. Git Setup Guide for Parallel Terminal Execution
-
-To ensure all 4 terminals operate in isolated working directories without clobbering each other's files, use Git Worktrees:
-
-### Step 1: Base Commit Initialization (Done by Agent 1)
-```powershell
-git add .gitignore README.md workflow.md pyproject.toml
-git commit -m "chore: initialize project baseline and multi-agent workflow"
-```
-
-### Step 2: Setting Up Isolated Worktrees for Agents 2, 3, and 4
-Run these commands in PowerShell to create dedicated worktree folders for each agent:
+Run these PowerShell commands in the repository root to create isolated worktrees for each agent:
 
 ```powershell
 # Create worktrees directory (already gitignored)
 New-Item -ItemType Directory -Force -Path .worktrees
 
-# Agent 2 Worktree (Frontend)
-git worktree add .worktrees/frontend -b feature/frontend-ui
+# Agent 2 Worktree (Subtasks & Checklists feature)
+git worktree add .worktrees/agent-2-subtasks -b feature/subtasks-reminders
 
-# Agent 3 Worktree (Features)
-git worktree add .worktrees/features -b feature/advanced-features
+# Agent 3 Worktree (Analytics & Export feature)
+git worktree add .worktrees/agent-3-analytics -b feature/analytics-export
 
-# Agent 4 Worktree (DevOps)
-git worktree add .worktrees/devops -b feature/devops-pipeline
+# Agent 4 Worktree (Frontend UI)
+git worktree add .worktrees/agent-4-frontend -b feature/frontend-ui
+
+# Agent 5 Worktree (DevOps & Production)
+git worktree add .worktrees/agent-5-devops -b feature/devops-pipeline
 ```
 
-### Step 3: Navigating Each Terminal
-- **Terminal 1 (Agent 1)**: Stay in `e:\Open-Source\TODO` (`feature/backend-api`)
-- **Terminal 2 (Agent 2)**: `cd .worktrees/frontend`
-- **Terminal 3 (Agent 3)**: `cd .worktrees/features`
-- **Terminal 4 (Agent 4)**: `cd .worktrees/devops`
+Navigate each agent's terminal to its respective directory:
+- **Agent 1 (Current Terminal)**: Stay in `e:\Open-Source\TODO` (`main` / `feature/core-backend`)
+- **Agent 2 (Terminal 2)**: `cd .worktrees/agent-2-subtasks`
+- **Agent 3 (Terminal 3)**: `cd .worktrees/agent-3-analytics`
+- **Agent 4 (Terminal 4)**: `cd .worktrees/agent-4-frontend`
+- **Agent 5 (Terminal 5)**: `cd .worktrees/agent-5-devops`
 
 ---
 
-## 7. Self-Healing Quality Verification Gates
-
-Before final merge to `main`, all 4 quality gates must pass with **0 errors**:
-
-| Gate | Check | Command | Passing Criteria |
-| :--- | :--- | :--- | :--- |
-| **Gate 1** | Backend Lint & Tests | `pytest backend/tests -v` | All tests pass, 0 failures |
-| **Gate 2** | Frontend Build & Typecheck | `npm --prefix frontend run build` | Exit code 0, no type errors |
-| **Gate 3** | Docker Compose Build | `docker compose build` | Images build without errors |
-| **Gate 4** | End-to-End Smoke Test | `curl http://localhost:8000/api/v1/health` | Returns `{"status": "healthy"}` |
+## 5. Agent Tasks & Copy-Paste Terminal Prompts
 
 ---
 
-## 8. Quick Status Checklist
+### 🔵 Agent 1: Feature Track 1 - Core Architecture & Backend CRUD (Task 1)
+* **Terminal**: Process ID `19204` (This Agent)
+* **Scope**: `backend/app/core/`, `backend/app/models/`, `backend/app/schemas/`, `backend/app/api/v1/todos.py`, `contracts/`
+* **Deliverables**:
+  1. FastAPI project structure with SQLModel SQLite database engine.
+  2. Data models: `Todo`, `Priority` (`LOW`, `MEDIUM`, `HIGH`, `URGENT`), `Status` (`PENDING`, `IN_PROGRESS`, `COMPLETED`), `Category`.
+  3. REST CRUD endpoints at `/api/v1/todos`:
+     - `GET /api/v1/todos` (pagination, filter by status, category, priority)
+     - `POST /api/v1/todos`
+     - `GET /api/v1/todos/{id}`
+     - `PUT /api/v1/todos/{id}`
+     - `DELETE /api/v1/todos/{id}`
+     - `PATCH /api/v1/todos/{id}/toggle`
+     - `GET /api/v1/health`
+  4. Generate and save `contracts/todo-api-spec.json` (OpenAPI schema).
+  5. Pytest suite in `backend/tests/test_todos.py`.
 
-- [ ] **Agent 1**: Baseline initialized, contracts published, FastAPI backend complete.
-- [ ] **Agent 2**: Frontend UI built, glassmorphism theme verified, API integrated.
-- [ ] **Agent 3**: Subtasks, Analytics Dashboard, and Import/Export functional.
-- [ ] **Agent 4**: Dockerfiles, Docker Compose, Nginx, and GitHub Actions CI passing.
-- [ ] **Integration**: Worktrees merged cleanly into `main`, full stack verified.
+---
+
+### 🟢 Agent 2: Feature Track 2 - Subtasks, Checklists & Due Dates (Task 2)
+* **Terminal**: Terminal 2 (Working in `.worktrees/agent-2-subtasks`)
+* **Scope**: `backend/app/modules/subtasks/`, `backend/app/api/v1/subtasks.py`, `backend/tests/test_subtasks.py`
+* **Copy-Paste Prompt for Terminal 2**:
+
+```markdown
+You are Agent 2 (Feature Specialist: Subtasks, Checklists & Due Dates) for the full-stack Todo application.
+Your work is strictly isolated to your worktree (`.worktrees/agent-2-subtasks`) on branch `feature/subtasks-reminders`.
+
+### Objective:
+Implement a robust Subtask and Checklist feature for the Todo application.
+
+### Requirements:
+1. **Data Model & Schema**:
+   - Model `Subtask`: `id`, `todo_id` (foreign key to Todo), `title`, `is_completed`, `order_index`, `created_at`, `updated_at`.
+   - Dynamic completion calculation: When fetching a Todo, include `subtasks_count` and `subtasks_completed_count`, plus dynamic progress percentage (0-100%).
+2. **API Endpoints (`backend/app/api/v1/subtasks.py`)**:
+   - `GET /api/v1/todos/{todo_id}/subtasks` - List all subtasks for a todo, ordered by `order_index`.
+   - `POST /api/v1/todos/{todo_id}/subtasks` - Add a new subtask to a todo.
+   - `PATCH /api/v1/subtasks/{subtask_id}/toggle` - Toggle subtask completion status.
+   - `PUT /api/v1/subtasks/{subtask_id}` - Edit subtask title or order.
+   - `DELETE /api/v1/subtasks/{subtask_id}` - Delete a subtask.
+3. **Due Dates & Reminder Metadata**:
+   - Add helper logic for overdue calculations: check `due_date < current_timestamp` and `status != COMPLETED`.
+   - Provide an endpoint `GET /api/v1/todos/overdue` to quickly retrieve urgent/overdue tasks.
+4. **Automated Testing**:
+   - Create comprehensive tests in `backend/tests/test_subtasks.py` verifying subtask creation, toggle, cascading delete, and progress percentage computation.
+5. Commit your changes with descriptive commit messages and verify all tests pass.
+```
+
+---
+
+### 🟡 Agent 3: Feature Track 3 - Analytics, Search & Data Import/Export (Task 3)
+* **Terminal**: Terminal 3 (Working in `.worktrees/agent-3-analytics`)
+* **Scope**: `backend/app/modules/analytics/`, `backend/app/modules/export_import/`, `backend/app/api/v1/analytics.py`, `backend/app/api/v1/export_import.py`, `backend/tests/test_features.py`
+* **Copy-Paste Prompt for Terminal 3**:
+
+```markdown
+You are Agent 3 (Feature Specialist: Analytics, Search & Data Management) for the full-stack Todo application.
+Your work is strictly isolated to your worktree (`.worktrees/agent-3-analytics`) on branch `feature/analytics-export`.
+
+### Objective:
+Implement high-value productivity metrics, advanced search/filtering, and full JSON/CSV data backup and restore.
+
+### Requirements:
+1. **Productivity & Analytics Engine (`backend/app/modules/analytics/`)**:
+   - Endpoint `GET /api/v1/analytics/summary`:
+     - Total tasks count, completed count, active count, overdue count.
+     - Completion rate percentage.
+     - Breakdown by priority (`LOW`, `MEDIUM`, `HIGH`, `URGENT`).
+     - Breakdown by category/tag.
+     - Productivity streak (consecutive days with at least 1 completed task).
+2. **Advanced Search & Multi-Filter (`backend/app/api/v1/search.py`)**:
+   - Endpoint `GET /api/v1/todos/search`:
+     - Full-text search across title, description, and tags.
+     - Multi-faceted filtering: date ranges, priority list, completion state.
+     - Configurable sorting: `due_date_asc`, `priority_desc`, `created_at_desc`.
+3. **Data Backup & Restore (`backend/app/modules/export_import/`)**:
+   - `GET /api/v1/export/json`: Exports all todos, subtasks, and categories as a clean JSON backup.
+   - `GET /api/v1/export/csv`: Exports todos as a formatted CSV spreadsheet file.
+   - `POST /api/v1/import/json`: Restores or imports tasks from a JSON backup payload with conflict handling (append vs skip duplicates).
+4. **Automated Testing**:
+   - Create tests in `backend/tests/test_features.py` validating analytics calculations, search precision, and export/import round-trips.
+5. Commit your changes with descriptive commit messages and ensure tests pass cleanly.
+```
+
+---
+
+### 🎨 Agent 4: Frontend Application & UI/UX (Task 4)
+* **Terminal**: Terminal 4 (Working in `.worktrees/agent-4-frontend`)
+* **Scope**: `frontend/`
+* **Copy-Paste Prompt for Terminal 4**:
+
+```markdown
+You are Agent 4 (Frontend Specialist & UI/UX Engineer) for the full-stack Todo application.
+Your work is strictly isolated to your worktree (`.worktrees/agent-4-frontend`) on branch `feature/frontend-ui`.
+
+### Objective:
+Build a modern, responsive, and visually stunning web client with glassmorphism aesthetics, dark/light theme, micro-animations, and full API integration.
+
+### Tech Stack & Guidelines:
+- Modern Single-Page Application (HTML5 / TypeScript / Vite or React + Vite).
+- CSS: Vanilla CSS with custom properties or CSS Modules. Rich visual hierarchy: glassmorphism cards, vibrant accents, smooth hover states, responsive mobile-to-desktop layout.
+- Icons & Typography: Google Fonts (Inter or Outfit), clean SVG icons.
+
+### Core Components & Features:
+1. **App Header**:
+   - App title with glowing gradient logo.
+   - Live date display.
+   - Quick stats pill (e.g. "4 / 7 Completed · 57%").
+   - Dark/Light mode theme switch with instant transition.
+2. **Quick Task Creator**:
+   - Input field with instant keyboard submission (`Enter`).
+   - Priority dropdown selector (Urgent: Red, High: Orange, Medium: Blue, Low: Gray).
+   - Category tag badge input.
+   - Due date calendar picker.
+3. **Filter & Control Toolbar**:
+   - Tabs: All, Active, Completed, Overdue.
+   - Search bar with instant real-time filtering.
+   - Sort dropdown (Due Date, Priority, Title).
+   - "Analytics" toggle view button.
+4. **Interactive Todo List & Items**:
+   - Todo card with custom checkmark toggle and striking strike-through animation.
+   - Priority indicator badges and category chips.
+   - Due date status (with red warning badge for overdue tasks).
+   - Expandable Subtask checklist showing progress bar (e.g. "2/3 Subtasks").
+   - Action buttons: Edit modal, Delete with smooth exit transition.
+5. **Analytics & Productivity View**:
+   - Modal or view showing completion percentage circle, priority distribution bars, and daily streak counter.
+   - Export buttons (Download JSON Backup, Download CSV).
+6. **API Integration & Resilience**:
+   - API client communicating with backend at `/api/v1/` (proxyable to `http://localhost:8000`).
+   - Resilient offline fallback: If backend is offline, store and sync with `localStorage` gracefully.
+7. Verify that `npm run build` succeeds with zero errors and clean output.
+```
+
+---
+
+### ⚙️ Agent 5: DevOps, Infrastructure & Production Readiness (Task 5)
+* **Terminal**: Terminal 5 (Working in `.worktrees/agent-5-devops`)
+* **Scope**: `devops/`, `.github/`, `docker-compose.yml`, `nginx/`, `.env.example`
+* **Copy-Paste Prompt for Terminal 5**:
+
+```markdown
+You are Agent 5 (DevOps & Infrastructure Specialist) for the full-stack Todo application.
+Your work is strictly isolated to your worktree (`.worktrees/agent-5-devops`) on branch `feature/devops-pipeline`.
+
+### Objective:
+Package, containerize, and automate production deployment and continuous integration for the full-stack Todo application.
+
+### Requirements:
+1. **Production Multi-Stage Dockerfiles**:
+   - `devops/docker/backend.Dockerfile`:
+     - Python 3.12/3.13 slim base image.
+     - Non-root application user for container security.
+     - Production ASGI server (Uvicorn with production flags).
+     - Health check directive using `curl` or python probe.
+   - `devops/docker/frontend.Dockerfile`:
+     - Multi-stage build: Stage 1 Node builder (`npm run build`), Stage 2 Nginx alpine server serving optimized static bundle.
+2. **Docker Compose Orchestration (`docker-compose.yml`)**:
+   - Services:
+     - `backend`: FastAPI server exposing port 8000.
+     - `frontend`: Frontend UI server exposing port 3000.
+     - `proxy`: Nginx reverse proxy routing port 80/443 (`/api` -> backend, `/` -> frontend).
+   - Named volume for SQLite persistence: `todo_storage:/app/data`.
+   - Health check dependency: `frontend` and `proxy` wait until `backend` reports healthy.
+3. **Nginx Reverse Proxy Configuration (`devops/docker/nginx.conf`)**:
+   - Reverse proxy routing for API and static UI.
+   - Gzip compression enabled for HTML, CSS, JS, and JSON.
+   - Security headers: `X-Frame-Options`, `X-Content-Type-Options`, `X-XSS-Protection`, `Referrer-Policy`.
+4. **CI/CD Pipeline (`.github/workflows/ci.yml`)**:
+   - Trigger on push and pull requests to `main`.
+   - Jobs:
+     - Backend linting and pytest execution.
+     - Frontend typecheck and build validation.
+     - Docker compose build verification.
+5. **Operational Utilities**:
+   - `.env.example`: Documented configuration keys.
+   - `devops/scripts/healthcheck.ps1` and `healthcheck.sh`: Smoke test script querying health probes.
+6. Commit all changes with descriptive commit messages and test `docker-compose.yml` config validity.
+```
+
+---
+
+## 6. Verification & Self-Healing Integration Protocol
+
+Once all agents complete their feature sprints, the integration phase is executed:
+
+### Quality Verification Gates:
+1. **Gate 1 (Backend Tests)**:
+   ```bash
+   pytest backend/tests -v
+   ```
+   *Must exit with 0 errors and all unit/module tests passing.*
+
+2. **Gate 2 (Frontend Build)**:
+   ```bash
+   npm --prefix frontend run build
+   ```
+   *Must compile production bundle without TypeScript errors.*
+
+3. **Gate 3 (Docker Compose Validation)**:
+   ```bash
+   docker compose config
+   docker compose build
+   ```
+   *Must parse configurations and assemble images successfully.*
+
+4. **Gate 4 (End-to-End Smoke Test)**:
+   ```bash
+   docker compose up -d
+   curl http://localhost/api/v1/health
+   ```
+   *Must return HTTP 200 with status "healthy".*
+
+---
+
+## 7. Execution Status Checklist
+
+- [x] **Project Baseline**: Git initialized, root commit recorded, branches prepared.
+- [ ] **Agent 1 (Current)**: Core FastAPI REST API, SQLModel schema, CRUD endpoints, OpenAPI contract.
+- [ ] **Agent 2**: Subtasks, checklist progress calculation, due date logic, and tests.
+- [ ] **Agent 3**: Productivity analytics, search engine, JSON/CSV export and import.
+- [ ] **Agent 4**: Responsive frontend application, glassmorphism theme, API client integration.
+- [ ] **Agent 5**: Multi-stage Dockerfiles, Docker Compose, Nginx proxy, GitHub Actions CI.
+- [ ] **Integration**: All feature worktrees merged cleanly into `main`, production stack verified.

@@ -44,7 +44,7 @@ Agents 1 to 3 are dedicated to **Feature Engineering & Backend Capabilities**, w
 | **Agent 1** *(This Agent)* | Terminal PID `19204` | **Feature Track 1: Core Architecture & Backend CRUD** | `backend/app/core/`, `backend/app/models/`, `backend/app/api/v1/todos.py`, `contracts/` | `feature/core-backend` |
 | **Agent 2** | Terminal 2 | **Feature Track 2: Subtasks, Checklists & Due Dates** | `backend/app/modules/subtasks/`, `backend/app/api/v1/subtasks.py` | `feature/subtasks-reminders` |
 | **Agent 3** | Terminal 3 | **Feature Track 3: Analytics, Search & Data Import/Export** | `backend/app/modules/analytics/`, `backend/app/modules/export_import/` | `feature/analytics-export` |
-| **Agent 4** | Terminal 4 | **Frontend Client: Modern Responsive UI & State** | `frontend/` | `feature/frontend-ui` |
+| **Agent 4** | Terminal 4 | **Frontend Client: UI & State (Neo-Brutalism Aesthetic Palettes)** | `frontend/` | `feature/frontend-ui` |
 | **Agent 5** | Terminal 5 | **DevOps & Production Infra: Docker, CI/CD, Nginx** | `devops/`, `.github/`, `nginx/`, `docker-compose.yml` | `feature/devops-pipeline` |
 
 *(Note: If running 4 agents instead of 5, Agent 4 can handle both Frontend and DevOps, or follow the 5-agent breakdown as terminal instances are available.)*
@@ -84,7 +84,7 @@ todo/
 │   ├── src/
 │   │   ├── components/               (TodoCard, SubtaskList, StatsView, FilterBar)
 │   │   ├── services/                 (API client connecting to backend)
-│   │   ├── styles/                   (Glassmorphism CSS, animations, theme tokens)
+│   │   ├── styles/                   (Neo-Brutalist CSS, hard drop shadows, pastel palettes, theme tokens)
 │   │   └── App.tsx
 │   ├── package.json
 │   └── index.html
@@ -232,12 +232,17 @@ You are Agent 4 (Frontend Specialist & UI/UX Engineer) for the full-stack Todo a
 Your work is strictly isolated to your worktree (`.worktrees/agent-4-frontend`) on branch `feature/frontend-ui`.
 
 ### Objective:
-Build a modern, responsive, and visually stunning web client with glassmorphism aesthetics, dark/light theme, micro-animations, and full API integration.
+Build a responsive web client using the **Neo-Brutalism design pattern with aesthetic palettes** (high-contrast borders, solid geometric drop shadows, pastel and retro color palettes, bold typography, tactile interactions, dark/light modes, and full API integration).
 
 ### Tech Stack & Guidelines:
 - Modern Single-Page Application (HTML5 / TypeScript / Vite or React + Vite).
-- CSS: Vanilla CSS with custom properties or CSS Modules. Rich visual hierarchy: glassmorphism cards, vibrant accents, smooth hover states, responsive mobile-to-desktop layout.
-- Icons & Typography: Google Fonts (Inter or Outfit), clean SVG icons.
+- CSS: Neo-Brutalist styling with CSS Custom Properties / CSS Modules:
+  - **Borders & Outlines**: Crisp 2px to 3px solid dark borders (`border: 2px solid #0f172a` in light, `#f8fafc` in dark).
+  - **Hard Drop Shadows**: Solid, unblurred offset shadows (`box-shadow: 4px 4px 0px #0f172a`, `3px 3px 0px #0f172a`). No diffuse blurs.
+  - **Aesthetic Color Palettes**: Soft pastel base backgrounds accented by vivid retro/pop colors (e.g., butter yellow `#FEF08A`, pastel mint `#A7F3D0`, lavender `#DDD6FE`, peach `#FED7AA`, coral `#FDA4AF`, retro cyan `#67E8F9`).
+  - **Tactile Interactions**: Buttons and cards with press states (`:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px #0f172a; }`, `:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px #0f172a; }`).
+  - **Typography & Layout**: Bold, high-contrast headings with prominent weights (e.g. Lexend, Plus Jakarta Sans, Inter), high-contrast chips, badges, and clean grid/flexbox layouts.
+- Icons & Visuals: Clean SVG icons with solid stroke weights.
 
 ### Core Components & Features:
 1. **App Header**:
@@ -354,9 +359,9 @@ Once all agents complete their feature sprints, the integration phase is execute
 ## 7. Execution Status Checklist
 
 - [x] **Project Baseline**: Git initialized, root commit recorded, branches prepared.
-- [ ] **Agent 1 (Current)**: Core FastAPI REST API, SQLModel schema, CRUD endpoints, OpenAPI contract.
+- [x] **Agent 1 (Current)**: Core FastAPI REST API, SQLModel schema, CRUD endpoints, OpenAPI contract.
 - [ ] **Agent 2**: Subtasks, checklist progress calculation, due date logic, and tests.
 - [ ] **Agent 3**: Productivity analytics, search engine, JSON/CSV export and import.
-- [ ] **Agent 4**: Responsive frontend application, glassmorphism theme, API client integration.
+- [ ] **Agent 4**: Responsive frontend application, neo-brutalist aesthetic theme, API client integration.
 - [ ] **Agent 5**: Multi-stage Dockerfiles, Docker Compose, Nginx proxy, GitHub Actions CI.
 - [ ] **Integration**: All feature worktrees merged cleanly into `main`, production stack verified.

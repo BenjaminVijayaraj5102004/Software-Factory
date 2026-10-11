@@ -22,6 +22,7 @@ dist-ssr/
 *.swp
 *.swo
 .DS_Store
+.artifacts/
 
 # Environment & Database
 .env
@@ -29,4 +30,7 @@ dist-ssr/
 *.sqlite3
 *.sqlite
 *.db
+
+# Evidence & Artifacts
+.artifacts/
 

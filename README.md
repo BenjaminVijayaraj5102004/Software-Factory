@@ -3,10 +3,11 @@
 A modern, high-performance, full-stack Todo application built with clean object-oriented architecture, comprehensive API contracts, modern UI aesthetics, and enterprise DevOps containerization.
 
 ## Multi-Agent Architecture
-This project is engineered using a 4-agent parallel software factory workflow:
+This project is engineered using a 5-agent parallel software factory workflow:
 - **Agent 1 (Lead Backend Architect)**: FastAPI REST API, SQLModel persistence, CRUD endpoints, OpenAPI contract.
-- **Agent 2 (Frontend Specialist)**: Modern web application, glassmorphism UI, theme system, responsive layout.
-- **Agent 3 (Features & Analytics)**: Subtasks, checklist progress, productivity metrics, export/import.
-- **Agent 4 (DevOps & Production Infra)**: Docker multi-stage builds, Nginx reverse proxy, CI/CD pipeline.
+- **Agent 2 (Subtasks & Checklists Specialist)**: Subtasks, checklist progress calculation, due date and overdue logic.
+- **Agent 3 (Analytics & Search Specialist)**: Productivity metrics engine, advanced multi-filter search, JSON/CSV export and import.
+- **Agent 4 (Frontend UI/UX Specialist)**: Responsive web application, Neo-Brutalism design pattern with aesthetic color palettes, tactile interactions, offline resilience.
+- **Agent 5 (DevOps & Production Infra)**: Multi-stage Dockerfiles, Docker Compose, Nginx reverse proxy, GitHub Actions CI/CD.
 
-For detailed coordination, prompt instructions, and branch/worktree isolation guidelines, refer to [workflow.md](file:///e:/Open-Source/TODO/workflow.md).
+For detailed coordination, prompt instructions, and branch/worktree isolation guidelines, refer to [workflow.md](file:///E:/Open-Source/TODO/workflow.md).

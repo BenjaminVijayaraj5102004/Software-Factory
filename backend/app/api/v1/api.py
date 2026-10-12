@@ -1,30 +1,34 @@
 import importlib
 import logging
 from fastapi import APIRouter
-from backend.app.api.v1 import categories, health, todos
+from backend.app.api.v1 import categories, health, subtasks, todos
 
 logger = logging.getLogger(__name__)
 
 api_router = APIRouter()
 
-# Agent 1 Core Routes
+# Core Base Routers
 api_router.include_router(health.router, tags=["Health"])
 api_router.include_router(categories.router, tags=["Categories"])
 api_router.include_router(todos.router, prefix="/todos", tags=["Todos"])
+api_router.include_router(subtasks.router, tags=["Subtasks"])
 
-# Optional extension modules for Agent 2 and Agent 3
+# Optional extension modules for Features Agent
 OPTIONAL_MODULES = [
-    ("backend.app.api.v1.subtasks", "/todos", ["Subtasks"]),
-    ("backend.app.api.v1.search", "/todos/search", ["Search"]),
+    ("backend.app.modules.analytics.router", "/analytics", ["Analytics"]),
+    ("backend.app.modules.export_import.router", "", ["Export & Import"]),
     ("backend.app.api.v1.analytics", "/analytics", ["Analytics"]),
-    ("backend.app.api.v1.export_import", "/data", ["Export & Import"]),
+    ("backend.app.api.v1.export_import", "", ["Export & Import"]),
 ]
 
 for mod_path, prefix, tags in OPTIONAL_MODULES:
     try:
         mod = importlib.import_module(mod_path)
         if hasattr(mod, "router"):
-            api_router.include_router(mod.router, prefix=prefix, tags=tags)
+            if prefix:
+                api_router.include_router(mod.router, prefix=prefix, tags=tags)
+            else:
+                api_router.include_router(mod.router, tags=tags)
             logger.info("Mounted extension router: %s at %s", mod_path, prefix)
     except ModuleNotFoundError:
         pass

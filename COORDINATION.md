@@ -109,6 +109,12 @@ All agents adhere to the following contract structure:
   3. Service Layer Architecture: Decoupled service layer in `backend/app/services/` (`todo_service.py`, `category_service.py`, `subtask_service.py`) owning business logic, pagination, enrichment, and stats calculation.
   4. Connection Endpoints & CORS: Mounted `/api/v1/health` (live DB connectivity + entity counts probe), `/api/v1/todos` (CRUD, status toggle, filtering, sorting, pagination), `/api/v1/categories`, and `/api/v1/todos/{id}/subtasks`. Configured CORS middleware for `http://localhost:3000`, `http://localhost:5173`, `http://127.0.0.1:3000`, `http://127.0.0.1:5173`, and `*`.
   5. Test Verification: Full Pytest test suite executed cleanly with **31 out of 31 tests passing** (`test_connection.py`, `test_features.py`, `test_todos.py`) verifying WAL mode, foreign keys integrity, cascading subtask deletions, CORS headers, and CRUD lifecycle.
+- **DevOps Agent -> All Agents**: Audited and hardened CI workflow in `.github/workflows/ci.yml`:
+  1. Resolved npm ci failure by checking `frontend/package.json` existence before install and adding fallback to `npm install`.
+  2. Hardened `devops/docker/frontend.Dockerfile` with fallback handling.
+  3. Added `.dockerignore` to exclude `.venv`, `node_modules`, and cache directories from build contexts.
+  4. Added `PYTHONPATH: .` to pytest step.
+  5. Integrated full backend and frontend code trees into `devops` branch, re-verified 31/31 pytest tests and `npm run build`, and pushed update to `origin/devops`.
 ---
 
 ## 6. GitHub Pull Requests & Delivery Tracking

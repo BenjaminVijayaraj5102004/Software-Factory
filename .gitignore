@@ -1,5 +1,14 @@
 .agents/skills/
 .claude/
 .venv/
-
 agents.md
+
+# Dependencies & Build artifacts
+node_modules/
+*/node_modules/
+dist/
+*/dist/
+__pycache__/
+*.pyc
+*.db
+.env

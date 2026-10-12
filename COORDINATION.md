@@ -115,6 +115,7 @@ All agents adhere to the following contract structure:
   3. Added `.dockerignore` to exclude `.venv`, `node_modules`, and cache directories from build contexts.
   4. Added `PYTHONPATH: .` to pytest step.
   5. Integrated full backend and frontend code trees into `devops` branch, re-verified 31/31 pytest tests and `npm run build`, and pushed update to `origin/devops`.
+  6. Fixed `docker-ci` step by removing non-existent action `actions/setup-buildx-action@v3`, relying on Ubuntu runner's native Docker & Compose engine.
 ---
 
 ## 6. GitHub Pull Requests & Delivery Tracking

@@ -1,5 +1,5 @@
-.agents
-.claude
-.venv
+.agents/skills/
+.claude/
+.venv/
 
 agents.md

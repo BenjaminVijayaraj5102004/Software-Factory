@@ -13,15 +13,12 @@ api_router.include_router(categories.router, tags=["Categories"])
 api_router.include_router(todos.router, prefix="/todos", tags=["Todos"])
 api_router.include_router(subtasks.router, tags=["Subtasks"])
 
-# Optional extension modules for Features Agent (supports both api/v1 and modules paths)
+# Optional extension modules for Features Agent
 OPTIONAL_MODULES = [
-    ("backend.app.modules.subtasks.routes", "", ["Subtasks Module"]),
-    ("backend.app.modules.analytics.routes", "/analytics", ["Analytics"]),
-    ("backend.app.modules.export_import.routes", "", ["Export & Import"]),
-    ("backend.app.api.v1.search", "/search", ["Search"]),
+    ("backend.app.modules.analytics.router", "/analytics", ["Analytics"]),
+    ("backend.app.modules.export_import.router", "", ["Export & Import"]),
     ("backend.app.api.v1.analytics", "/analytics", ["Analytics"]),
     ("backend.app.api.v1.export_import", "", ["Export & Import"]),
-    ("backend.app.api.v1.export_import", "/data", ["Export & Import Data"]),
 ]
 
 for mod_path, prefix, tags in OPTIONAL_MODULES:

@@ -10,7 +10,6 @@ from backend.app.core.config import settings
 # If SQLite database URL points to a relative or absolute directory, ensure it exists
 if settings.DATABASE_URL.startswith("sqlite:///"):
     db_file_path = settings.DATABASE_URL.replace("sqlite:///", "")
-    # Check if there is a directory component
     dir_name = os.path.dirname(db_file_path)
     if dir_name and not os.path.exists(dir_name):
         os.makedirs(dir_name, exist_ok=True)
@@ -43,7 +42,7 @@ def init_db() -> None:
 
     SQLModel.metadata.create_all(engine)
 
-    # Seed default categories if database is empty
+    # Seed default categories if database is newly initialized
     with Session(engine) as session:
         existing = session.exec(select(Category)).first()
         if not existing:

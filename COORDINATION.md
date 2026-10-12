@@ -109,6 +109,17 @@ All agents adhere to the following contract structure:
   3. Service Layer Architecture: Decoupled service layer in `backend/app/services/` (`todo_service.py`, `category_service.py`, `subtask_service.py`) owning business logic, pagination, enrichment, and stats calculation.
   4. Connection Endpoints & CORS: Mounted `/api/v1/health` (live DB connectivity + entity counts probe), `/api/v1/todos` (CRUD, status toggle, filtering, sorting, pagination), `/api/v1/categories`, and `/api/v1/todos/{id}/subtasks`. Configured CORS middleware for `http://localhost:3000`, `http://localhost:5173`, `http://127.0.0.1:3000`, `http://127.0.0.1:5173`, and `*`.
   5. Test Verification: Full Pytest test suite executed cleanly with **31 out of 31 tests passing** (`test_connection.py`, `test_features.py`, `test_todos.py`) verifying WAL mode, foreign keys integrity, cascading subtask deletions, CORS headers, and CRUD lifecycle.
+---
 
+## 6. GitHub Pull Requests & Delivery Tracking
 
+All 4 feature branches have been pushed to remote repository `origin` (`https://github.com/BenjaminVijayaraj5102004/Software-factory.git`). Pull Requests are ready for review and merge:
 
+| Track / Domain | Feature Branch | Target Base | Direct GitHub PR Creation Link | Verification & Test Gates |
+| :--- | :--- | :--- | :--- | :--- |
+| **Backend & Database** | `backend-connection` | `main` | [Create Backend PR](https://github.com/BenjaminVijayaraj5102004/Software-factory/pull/new/backend-connection) | 31/31 Pytest tests passed; SQLite WAL mode & foreign keys verified; dependencies locked in `requirements.txt`. |
+| **Advanced Features** | `features-advanced` | `main` | [Create Features PR](https://github.com/BenjaminVijayaraj5102004/Software-factory/pull/new/features-advanced) | 31/31 Pytest tests passed; subtask checklist progress, analytics, and JSON/CSV export/import verified; 25 OpenAPI contracts valid. |
+| **Frontend UI/UX** | `frontend` | `main` | [Create Frontend PR](https://github.com/BenjaminVijayaraj5102004/Software-factory/pull/new/frontend) | Neo-Brutalist & Glass theme; `npm run build` compiled 0 errors to `frontend/dist`; dual-mode offline sync tested. |
+| **DevOps & CI/CD** | `devops` | `main` | [Create DevOps PR](https://github.com/BenjaminVijayaraj5102004/Software-factory/pull/new/devops) | Multi-stage Dockerfiles (`backend.Dockerfile`, `frontend.Dockerfile`); `docker compose config` passed 0 errors; CI workflow active. |
+
+---

@@ -3,8 +3,6 @@ from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field
 from backend.app.models.enums import Priority, Status
 from backend.app.schemas.category import CategoryRead
-
-
 from backend.app.schemas.subtask import SubtaskRead
 
 
@@ -23,7 +21,6 @@ class TodoCreate(TodoBaseSchema):
         default=None,
         description="Optional category name to automatically find or create and associate"
     )
-    is_completed: Optional[bool] = Field(default=None, description="Convenience flag for initial completion status")
 
 
 class TodoUpdate(BaseModel):
@@ -31,7 +28,7 @@ class TodoUpdate(BaseModel):
     description: Optional[str] = Field(default=None)
     priority: Optional[Priority] = Field(default=None)
     status: Optional[Status] = Field(default=None)
-    is_completed: Optional[bool] = Field(default=None, description="Toggle completion status directly")
+    is_completed: Optional[bool] = Field(default=None, description="Directly toggle completed boolean")
     due_date: Optional[datetime] = Field(default=None)
     tags: Optional[str] = Field(default=None)
     category_id: Optional[int] = Field(default=None)

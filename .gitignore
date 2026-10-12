@@ -1,36 +1,5 @@
-# Python-generated files
-__pycache__/
-*.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
-.venv/
-.pytest_cache/
-.coverage
-htmlcov/
+.agents
+.claude
+.venv
 
-# Node & Frontend
-node_modules/
-.npm/
-dist-ssr/
-*.local
-
-# Worktrees & IDE
-.worktrees/
-.claude/worktrees/
-*.swp
-*.swo
-.DS_Store
-.artifacts/
-
-# Environment & Database
-.env
-*.env
-*.sqlite3
-*.sqlite
-*.db
-
-# Evidence & Artifacts
-.artifacts/
-
+agents.md

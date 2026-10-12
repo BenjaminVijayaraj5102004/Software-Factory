@@ -1,11 +1,10 @@
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Optional
 from sqlmodel import Field, Relationship, SQLModel
 from backend.app.models.enums import Priority, Status
 
 if TYPE_CHECKING:
     from backend.app.models.category import Category
-    from backend.app.models.subtask import Subtask
 
 
 class TodoBase(SQLModel):
@@ -27,4 +26,3 @@ class Todo(TodoBase, table=True):
     completed_at: Optional[datetime] = Field(default=None, index=True)
 
     category: Optional["Category"] = Relationship(back_populates="todos")
-    subtasks: List["Subtask"] = Relationship(back_populates="todo", cascade_delete=True)

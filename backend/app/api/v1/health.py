@@ -9,18 +9,10 @@ router = APIRouter()
 
 @router.get("/health", status_code=status.HTTP_200_OK, tags=["Health"])
 def health_check(session: Session = Depends(get_session)):
-    """Health check probe verifying server and SQLite database readiness."""
+    """Health check probe verifying server and database readiness."""
     db_status = "connected"
-    todos_count = 0
-    categories_count = 0
     try:
         session.exec(text("SELECT 1")).first()
-        todo_res = session.exec(text("SELECT COUNT(*) FROM todo")).first()
-        if todo_res:
-            todos_count = int(todo_res[0])
-        cat_res = session.exec(text("SELECT COUNT(*) FROM category")).first()
-        if cat_res:
-            categories_count = int(cat_res[0])
     except Exception as exc:
         db_status = f"error: {str(exc)}"
         raise HTTPException(
@@ -34,6 +26,4 @@ def health_check(session: Session = Depends(get_session)):
         "version": settings.VERSION,
         "environment": settings.ENVIRONMENT,
         "database": db_status,
-        "todos_count": todos_count,
-        "categories_count": categories_count,
     }

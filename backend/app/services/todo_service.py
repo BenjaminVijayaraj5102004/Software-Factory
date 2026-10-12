@@ -8,7 +8,6 @@ from backend.app.models.enums import Priority, Status
 from backend.app.models.todo import Todo
 from backend.app.models.category import Category
 from backend.app.schemas.category import CategoryRead
-from backend.app.schemas.subtask import SubtaskRead
 from backend.app.schemas.todo import TodoCreate, TodoRead, TodoUpdate
 from backend.app.services.category_service import CategoryService
 
@@ -26,27 +25,29 @@ class TodoService:
         return due < now
 
     @staticmethod
-    def _get_subtasks_and_stats(session: Session, todo_id: int) -> Tuple[List[SubtaskRead], int, int, float]:
-        """Safely fetch subtasks list and progress stats."""
+    def _get_subtask_stats(session: Session, todo_id: int) -> Tuple[int, int, float]:
+        """Safely fetch subtask counts if subtask module/table is active."""
         try:
-            from backend.app.models.subtask import Subtask
-            stmt = select(Subtask).where(Subtask.todo_id == todo_id).order_by(Subtask.created_at.asc())
-            subtasks = session.exec(stmt).all()
-            subtasks_read = [SubtaskRead.model_validate(st) for st in subtasks]
-            total = len(subtasks)
-            completed = sum(1 for st in subtasks if st.is_completed)
-            percentage = round((completed / total) * 100.0, 1) if total > 0 else 0.0
-            return subtasks_read, total, completed, percentage
+            query = text(
+                "SELECT COUNT(*), SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) "
+                "FROM subtasks WHERE todo_id = :tid"
+            )
+            result = session.exec(query, params={"tid": todo_id}).first()
+            if result and result[0] is not None:
+                total = int(result[0])
+                completed = int(result[1] or 0)
+                percentage = round((completed / total) * 100.0, 1) if total > 0 else 0.0
+                return total, completed, percentage
         except Exception:
-            return [], 0, 0, 0.0
+            pass
+        return 0, 0, 0.0
 
     @classmethod
     def enrich_todo(cls, session: Session, todo: Todo) -> TodoRead:
-        subtasks_read, subtasks_count, subtasks_completed_count, progress_percentage = cls._get_subtasks_and_stats(
+        subtasks_count, subtasks_completed_count, progress_percentage = cls._get_subtask_stats(
             session, todo.id
         )
         is_overdue = cls._is_overdue(todo)
-        is_completed = (todo.status == Status.COMPLETED)
 
         category_read = None
         if todo.category_id:
@@ -67,7 +68,6 @@ class TodoService:
             description=todo.description,
             priority=todo.priority,
             status=todo.status,
-            is_completed=is_completed,
             due_date=todo.due_date,
             tags=todo.tags,
             category_id=todo.category_id,
@@ -75,7 +75,6 @@ class TodoService:
             created_at=todo.created_at,
             updated_at=todo.updated_at,
             completed_at=todo.completed_at,
-            subtasks=subtasks_read,
             subtasks_count=subtasks_count,
             subtasks_completed_count=subtasks_completed_count,
             progress_percentage=progress_percentage,
@@ -89,20 +88,14 @@ class TodoService:
             cat = CategoryService.get_or_create(session, todo_in.category_name)
             category_id = cat.id
 
-        status = todo_in.status
-        if todo_in.is_completed is True:
-            status = Status.COMPLETED
-        elif todo_in.is_completed is False and status == Status.COMPLETED:
-            status = Status.PENDING
-
         now = datetime.now(timezone.utc)
-        completed_at = now if status == Status.COMPLETED else None
+        completed_at = now if todo_in.status == Status.COMPLETED else None
 
         todo = Todo(
             title=todo_in.title.strip(),
             description=todo_in.description.strip() if todo_in.description else None,
             priority=todo_in.priority,
-            status=status,
+            status=todo_in.status,
             due_date=todo_in.due_date,
             tags=todo_in.tags,
             category_id=category_id,
@@ -132,20 +125,14 @@ class TodoService:
         category_id: Optional[int] = None,
         category: Optional[str] = None,
         search: Optional[str] = None,
-        is_completed: Optional[bool] = None,
         page: int = 1,
         limit: int = 50,
         sort_by: str = "created_at_desc",
     ) -> Tuple[List[TodoRead], int]:
         query = select(Todo)
 
-        if is_completed is True:
-            query = query.where(Todo.status == Status.COMPLETED)
-        elif is_completed is False:
-            query = query.where(Todo.status != Status.COMPLETED)
-        elif status:
+        if status:
             query = query.where(Todo.status == status)
-
         if priority:
             query = query.where(Todo.priority == priority)
         if category_id:
@@ -203,23 +190,14 @@ class TodoService:
             return None
 
         update_data = todo_in.model_dump(exclude_unset=True)
-        # Handle is_completed explicitly
-        is_comp = update_data.pop("is_completed", None)
-
         for key, val in update_data.items():
             setattr(todo, key, val)
 
         now = datetime.now(timezone.utc)
         todo.updated_at = now
 
-        if is_comp is not None:
-            if is_comp:
-                todo.status = Status.COMPLETED
-                todo.completed_at = now
-            else:
-                todo.status = Status.PENDING
-                todo.completed_at = None
-        elif todo_in.status is not None:
+        # Update completed_at timestamp tracking
+        if todo_in.status is not None:
             if todo_in.status == Status.COMPLETED and not todo.completed_at:
                 todo.completed_at = now
             elif todo_in.status != Status.COMPLETED:
@@ -256,12 +234,12 @@ class TodoService:
         if not todo:
             return False
 
-        # Clean up associated subtasks
+        # If subtasks table exists, clean up associated subtasks
         try:
-            from backend.app.models.subtask import Subtask
-            subtasks = session.exec(select(Subtask).where(Subtask.todo_id == todo_id)).all()
-            for st in subtasks:
-                session.delete(st)
+            session.exec(
+                text("DELETE FROM subtasks WHERE todo_id = :tid"),
+                params={"tid": todo_id},
+            )
         except Exception:
             pass
 

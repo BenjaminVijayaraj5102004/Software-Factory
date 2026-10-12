@@ -1,4 +1,3 @@
-from typing import Optional
 from pydantic import BaseModel
 
 
@@ -16,9 +15,3 @@ class HealthResponse(BaseModel):
     status: str
     version: str
     database: str
-    todos_count: Optional[int] = 0
-    categories_count: Optional[int] = 0
-
-
-# Alias for compatibility
-HealthCheckResponse = HealthResponse

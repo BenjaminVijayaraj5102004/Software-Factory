@@ -6,10 +6,13 @@ from sqlmodel import Session
 from backend.app.core.database import get_session
 from backend.app.models.enums import Priority, Status
 from backend.app.schemas.category import CategoryCreate, CategoryRead
-from backend.app.schemas.subtask import SubtaskCreate, SubtaskRead
-from backend.app.schemas.todo import TodoCreate, TodoListResponse, TodoRead, TodoUpdate
+from backend.app.schemas.todo import (
+    TodoCreate,
+    TodoListResponse,
+    TodoRead,
+    TodoUpdate,
+)
 from backend.app.services.category_service import CategoryService
-from backend.app.services.subtask_service import SubtaskService
 from backend.app.services.todo_service import TodoService
 
 router = APIRouter()
@@ -22,7 +25,6 @@ def list_todos(
     category_id: Optional[int] = Query(default=None, description="Filter by category ID"),
     category: Optional[str] = Query(default=None, description="Filter by category name"),
     search: Optional[str] = Query(default=None, description="Search across title, description, and tags"),
-    is_completed: Optional[bool] = Query(default=None, description="Filter by boolean completion state"),
     page: int = Query(default=1, ge=1, description="Page number starting at 1"),
     limit: int = Query(default=50, ge=1, le=100, description="Items per page"),
     sort_by: str = Query(
@@ -39,7 +41,6 @@ def list_todos(
         category_id=category_id,
         category=category,
         search=search,
-        is_completed=is_completed,
         page=page,
         limit=limit,
         sort_by=sort_by,
@@ -82,12 +83,7 @@ def list_categories(
     ]
 
 
-@router.post(
-    "/categories",
-    response_model=CategoryRead,
-    status_code=status.HTTP_201_CREATED,
-    summary="Create a category",
-)
+@router.post("/categories", response_model=CategoryRead, status_code=status.HTTP_201_CREATED, summary="Create a category")
 def create_category(
     category_in: CategoryCreate,
     session: Session = Depends(get_session),
@@ -135,22 +131,6 @@ def update_todo(
     return updated
 
 
-@router.patch("/{todo_id}", response_model=TodoRead, summary="Partially update an existing todo")
-def patch_todo(
-    todo_id: int,
-    todo_in: TodoUpdate,
-    session: Session = Depends(get_session),
-):
-    """Partially update fields on an existing todo item."""
-    updated = TodoService.update_todo(session=session, todo_id=todo_id, todo_in=todo_in)
-    if not updated:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Todo with ID {todo_id} not found",
-        )
-    return updated
-
-
 @router.delete("/{todo_id}", status_code=status.HTTP_200_OK, summary="Delete a todo")
 def delete_todo(
     todo_id: int,
@@ -179,27 +159,3 @@ def toggle_todo(
             detail=f"Todo with ID {todo_id} not found",
         )
     return toggled
-
-
-@router.get("/{todo_id}/subtasks", response_model=List[SubtaskRead], summary="Get subtasks of a todo")
-def get_todo_subtasks(
-    todo_id: int,
-    session: Session = Depends(get_session),
-):
-    """Retrieve all subtasks associated with a todo checklist."""
-    return SubtaskService.get_subtasks_for_todo(session=session, todo_id=todo_id)
-
-
-@router.post(
-    "/{todo_id}/subtasks",
-    response_model=SubtaskRead,
-    status_code=status.HTTP_201_CREATED,
-    summary="Add a subtask to a todo",
-)
-def create_todo_subtask(
-    todo_id: int,
-    subtask_in: SubtaskCreate,
-    session: Session = Depends(get_session),
-):
-    """Add a subtask to a todo checklist."""
-    return SubtaskService.create_subtask(session=session, todo_id=todo_id, subtask_in=subtask_in)

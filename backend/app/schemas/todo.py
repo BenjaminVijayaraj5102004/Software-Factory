@@ -5,9 +5,6 @@ from backend.app.models.enums import Priority, Status
 from backend.app.schemas.category import CategoryRead
 
 
-from backend.app.schemas.subtask import SubtaskRead
-
-
 class TodoBaseSchema(BaseModel):
     title: str = Field(..., min_length=1, max_length=255, description="Title of the todo item")
     description: Optional[str] = Field(default=None, description="Detailed description or notes")
@@ -23,7 +20,6 @@ class TodoCreate(TodoBaseSchema):
         default=None,
         description="Optional category name to automatically find or create and associate"
     )
-    is_completed: Optional[bool] = Field(default=None, description="Convenience flag for initial completion status")
 
 
 class TodoUpdate(BaseModel):
@@ -31,7 +27,6 @@ class TodoUpdate(BaseModel):
     description: Optional[str] = Field(default=None)
     priority: Optional[Priority] = Field(default=None)
     status: Optional[Status] = Field(default=None)
-    is_completed: Optional[bool] = Field(default=None, description="Toggle completion status directly")
     due_date: Optional[datetime] = Field(default=None)
     tags: Optional[str] = Field(default=None)
     category_id: Optional[int] = Field(default=None)
@@ -39,12 +34,10 @@ class TodoUpdate(BaseModel):
 
 class TodoRead(TodoBaseSchema):
     id: int
-    is_completed: bool = False
     created_at: datetime
     updated_at: datetime
     completed_at: Optional[datetime] = None
     category: Optional[CategoryRead] = None
-    subtasks: List[SubtaskRead] = []
     subtasks_count: int = 0
     subtasks_completed_count: int = 0
     progress_percentage: float = 0.0

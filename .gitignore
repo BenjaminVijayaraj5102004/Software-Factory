@@ -1,5 +1,26 @@
+# Virtual Environments & Caches
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.db
+*.db-shm
+*.db-wal
+
+# Frontend dependencies and builds
+node_modules/
+frontend/node_modules/
+frontend/dist/
+dist/
+
+# Agent tools & logs
 .agents/skills/
 .claude/
-.venv/
-
 agents.md
+*.log
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

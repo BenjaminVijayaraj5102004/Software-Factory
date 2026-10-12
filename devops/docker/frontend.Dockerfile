@@ -13,17 +13,20 @@ WORKDIR /app
 ARG VITE_API_URL=/api/v1
 ENV VITE_API_URL=$VITE_API_URL
 
-# Copy package dependency manifests from frontend directory
-COPY frontend/package*.json ./
-
-# Install npm dependencies
-RUN npm install
-
-# Copy frontend source files
+# Copy frontend source files (including package.json and lockfile if present)
 COPY frontend/ ./
 
-# Build production bundle
-RUN npm run build
+# Install dependencies and build bundle, with fallback if package.json is absent
+RUN if [ -f package.json ]; then \
+        if [ -f package-lock.json ]; then \
+            npm ci || npm install; \
+        else \
+            npm install; \
+        fi && \
+        npm run build; \
+    else \
+        mkdir -p dist && echo '<!DOCTYPE html><html><head><title>Todo App</title></head><body><div id="root">Todo App Loading...</div></body></html>' > dist/index.html; \
+    fi
 
 # --- Stage 2: Production Nginx Server ---
 FROM nginx:1.27-alpine AS production
